@@ -1,0 +1,7 @@
+fastapi
+sqlalchemy
+redis
+celery
+aiohttp
+uvicorn
+python-dotenv
