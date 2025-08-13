@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from uuid import uuid4
+from uuid import uuid4, UUID
 from sqlalchemy.orm import Session
 
 from api.deps import get_db
@@ -21,4 +21,4 @@ async def create_story(request: StoryCreateRequest, db: Session = Depends(get_db
 
     result = await generate_story_task(session_id=session_id, prompt=promt, role=role, db=db)
 
-    return {"data":result, "uuid":session_id}
+    return {"data":result, "uuid":session_id.hex}

@@ -60,8 +60,9 @@ class OpenRouterService:
                 return {"Неправильная структура ответа": e, "Ответ": data}
             
             if session_id:
-                messages.append({"role": role, "content": json.dumps(assistant_reply)}) # type: ignore
-                await redis_client.set(f"session:{session_id}", json.dumps(messages), ex=3600) # type: ignore
+                decoded_content = str(assistant_reply)
+                messages.append({"role": role, "promt":prompt, "content": decoded_content}) # type: ignore
+                await redis_client.set(f"session:{session_id}", json.dumps(messages).encode('utf-8'), ex=3600) # type: ignore
                 await redis_client.close() # type: ignore
 
             return assistant_reply

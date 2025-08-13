@@ -7,9 +7,10 @@ from utils.redis import redis_client
 from database.models import Story
 from func.openrouter_service import OpenRouterService
 
+service = OpenRouterService()
+
 @app_celery.task
 async def generate_story_task(session_id: UUID, prompt: str, role: str, db: Session):
-    service = OpenRouterService()
     response = await service.call(prompt, role=role, session_id=session_id)
     try:
         story = db.query(Story).filter(Story.session_id == session_id).first()
@@ -27,8 +28,6 @@ async def generate_story_task(session_id: UUID, prompt: str, role: str, db: Sess
             db.add(user_story)
             db.commit()
             db.refresh(user_story)
-        await redis_client.delete(f"history:{session_id}")
-        await redis_client.close()
     finally:
         db.close()
     return response
