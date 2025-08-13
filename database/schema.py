@@ -1,16 +1,17 @@
 from pydantic import BaseModel
 from datetime import datetime
+from uuid import UUID
 
 
 class GetStory(BaseModel):
     id: int
-    text: dict
+    text: str
     create_at: datetime
 
 class DevStory(GetStory):
     promt: str
     parameters: str
-    session_id: str
+    session_id: UUID
 
 
 class StoryCreateRequest(BaseModel):
@@ -19,6 +20,6 @@ class StoryCreateRequest(BaseModel):
 
 
 class StoryContinueRequest(BaseModel):
-    session_id: str
+    session_id: UUID
     promt: str
     changes: str
