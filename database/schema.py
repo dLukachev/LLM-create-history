@@ -4,7 +4,7 @@ from uuid import UUID
 
 
 class GetStory(BaseModel):
-    id: int
+    session_id: UUID
     text: str
     create_at: datetime
 
@@ -23,3 +23,6 @@ class StoryContinueRequest(BaseModel):
     session_id: UUID
     promt: str
     changes: str
+
+class SessionId(BaseModel):
+    session_id: UUID
