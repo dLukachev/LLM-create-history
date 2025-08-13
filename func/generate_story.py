@@ -3,7 +3,6 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from utils.celery import app_celery
-from utils.redis import redis_client
 from database.models import Story
 from func.openrouter_service import OpenRouterService
 

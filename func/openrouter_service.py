@@ -19,7 +19,7 @@ class OpenRouterService:
         self.model = model
         self.url = url
 
-    async def call(self, prompt, role="user", changes= None, old_data= None, session_id=None):
+    async def call(self, prompt, role="user", changes=None, old_data=None, session_id=None):
         message = []
 
         if session_id:
