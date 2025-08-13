@@ -11,3 +11,4 @@ class Story(Base):
     parameters = Column(String, nullable=True)
     create_at = Column(DateTime, nullable=False, default=datetime.now())
     session_id = Column(UUID, nullable=False)
+    user_id = Column(String, nullable=False)

@@ -6,7 +6,6 @@ from api.deps import get_db
 from database.models import Story
 from database.schema import StoryContinueRequest
 from func.continue_story import continue_story_task
-from utils.redis import redis_client
 
 continue_story_router = APIRouter()
 
