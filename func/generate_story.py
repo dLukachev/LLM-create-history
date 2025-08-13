@@ -9,7 +9,7 @@ from func.openrouter_service import OpenRouterService
 service = OpenRouterService()
 
 @app_celery.task
-async def generate_story_task(session_id: UUID, prompt: str, role: str, db: Session):
+async def generate_story_task(session_id: UUID, prompt: str, role: str, user_id: str, db: Session):
     response = await service.call(prompt, role=role, session_id=session_id)
     try:
         story = db.query(Story).filter(Story.session_id == session_id).first()
@@ -22,7 +22,8 @@ async def generate_story_task(session_id: UUID, prompt: str, role: str, db: Sess
                 session_id=session_id,
                 promt=prompt,
                 text=response,
-                parameters=role
+                parameters=role,
+                user_id=user_id
             )
             db.add(user_story)
             db.commit()

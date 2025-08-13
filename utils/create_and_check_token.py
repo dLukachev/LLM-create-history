@@ -1,14 +1,17 @@
 import os
 from dotenv import load_dotenv
 import jwt
-from fastapi import Response
+from fastapi import HTTPException, Response
+from sqlalchemy.orm import Session
+from database.models import Story
 
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
-def create_bearer_token(user_id: int):
+
+def create_bearer_token(user_id: str):
     # Бессрочный токен с user_id
     payload = {"sub": str(user_id)}
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM) # type: ignore
@@ -24,3 +27,13 @@ def set_token_cookie(response: Response, token: str):
         samesite="strict",  # Защита от CSRF
         max_age=None  # Бессрочный
     )
+
+
+def check_token(token: str, db: Session):
+    try:
+        user = db.query(Story).filter_by(user_id=token).one_or_none()
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return user
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")

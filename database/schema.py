@@ -26,3 +26,9 @@ class StoryContinueRequest(BaseModel):
 
 class SessionId(BaseModel):
     session_id: UUID
+
+
+class UserStory(BaseModel):
+    session_id: UUID
+    story: str
+    create_at: datetime

@@ -1,16 +1,25 @@
-import json
-from fastapi import APIRouter
+from uuid import uuid4
+from fastapi import APIRouter, Response, Request
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from api.deps import get_db
 from database.models import Story
 from database.schema import StoryContinueRequest
 from func.continue_story import continue_story_task
+from utils.create_and_check_token import check_token, create_bearer_token, set_token_cookie
 
 continue_story_router = APIRouter()
 
 @continue_story_router.post("/continue-story")
-async def continue_story(request: StoryContinueRequest, db: Session = Depends(get_db)):
+async def continue_story(request: StoryContinueRequest, requests: Request, response: Response, db: Session = Depends(get_db)):
+    token = requests.cookies.get('access_token')
+    if token:
+        user = check_token(token.lstrip("Bearer").strip(), db)
+    else:
+        token = create_bearer_token(str(uuid4().hex))
+        set_token_cookie(response, token)
+
     story = db.query(Story).filter(Story.session_id == request.session_id).first()
     if not story:
         raise HTTPException(404, "Story not found")
