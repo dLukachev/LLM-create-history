@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from api.deps import get_db
 from database.models import Story
-from database.schema import DevStory, StoryContinueRequest
-from func.generate_story import generate_story_task
+from database.schema import StoryContinueRequest
+from func.continue_story import continue_story_task
 from utils.redis import redis_client
 
 continue_story_router = APIRouter()
@@ -19,4 +19,6 @@ async def continue_story(request: StoryContinueRequest, db: Session = Depends(ge
     cached = await redis_client.get(f"session:{request.session_id}")
     cached_decode = json.loads(cached)
 
-    
+    result = await continue_story_task(session_id=request.session_id, prompt=request.promt, changes=request.changes, db=db)
+
+    return result

@@ -19,7 +19,7 @@ class OpenRouterService:
         self.model = model
         self.url = url
 
-    async def call(self, prompt, role="user", session_id=None):
+    async def call(self, prompt, role="user", changes= None, old_data= None, session_id=None):
         message = []
 
         if session_id:
@@ -34,7 +34,7 @@ class OpenRouterService:
         }
         payload = {
             "model": self.model,
-            "messages": [{"role": role, "content": prompt}]
+            "messages": [{"role": role, "content": f"В общих чертах: {prompt}. Изменить: {changes}, что было раньше {old_data}" if changes is not None and old_data is not None else f"{prompt}"}]
         }
         try:
             async with aiohttp.ClientSession() as session:
