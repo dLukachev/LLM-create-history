@@ -31,7 +31,7 @@ def set_token_cookie(response: Response, token: str):
 
 def check_token(token: str, db: Session):
     try:
-        user = db.query(Story).filter_by(user_id=token).one_or_none()
+        user = db.query(Story).filter_by(user_id=token).all()
         if not user:
             raise HTTPException(status_code=401, detail="Invalid token")
         return user

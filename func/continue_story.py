@@ -1,17 +1,20 @@
 from datetime import datetime
 from uuid import UUID
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 import json
 
-from utils.celery import app_celery
 from utils.redis import redis_client
+from utils.arq import REDIS_SETTINGS
 from database.models import Story
+from database.base import engine
 from func.openrouter_service import OpenRouterService
 
 service = OpenRouterService()
 
-@app_celery.task
-async def continue_story_task(session_id: UUID, prompt: str, changes: str, db: Session):
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+async def continue_story_task(ctx, session_id: UUID, prompt: str, changes: str):
+    db = SessionLocal()
 
     cache = await redis_client.get(f"session:{session_id}")
     if cache:
@@ -44,3 +47,8 @@ async def continue_story_task(session_id: UUID, prompt: str, changes: str, db: S
         db.close()
 
     return response
+
+
+class WorkerSettings:
+    functions = [continue_story_task]
+    redis_settings = REDIS_SETTINGS
