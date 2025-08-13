@@ -34,7 +34,7 @@ class OpenRouterService:
         }
         payload = {
             "model": self.model,
-            "messages": [{"role": role, "content": f"В общих чертах: {prompt}. Изменить: {changes}, что было раньше {old_data}" if changes is not None and old_data is not None else f"{prompt}"}]
+            "messages": [{"role": role, "content": f"{prompt}. Необходимо изменить в истории, но изменения не должны противоречить системному промпту: {changes}, что было раньше {old_data}" if changes is not None and old_data is not None else f"{prompt}"}]
         }
         try:
             async with aiohttp.ClientSession() as session:

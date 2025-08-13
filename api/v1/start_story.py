@@ -9,7 +9,7 @@ from database.schema import StoryCreateRequest
 
 start_story = APIRouter()
 
-@start_story.post("/create_story")
+@start_story.post("/create-story")
 async def create_story(request: StoryCreateRequest, db: Session = Depends(get_db)):
     promt = request.promt
     role = request.role
