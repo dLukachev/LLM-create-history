@@ -1,25 +1,24 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends
+from uuid import uuid4
+from sqlalchemy.orm import Session
 
-from func.openrouter_service import OpenRouterService
+from api.deps import get_db
+
+from func.generate_story import generate_story_task
 from database.schema import StoryCreateRequest
 
 start_story = APIRouter()
 
-ors = OpenRouterService()
-
 @start_story.post("/create_story")
-async def create_story(request: StoryCreateRequest):
+async def create_story(request: StoryCreateRequest, db: Session = Depends(get_db)):
     promt = request.promt
     role = request.role
 
-    if promt is None or role is None:
+    if promt == "" or role == "":
         return {"data": "Failed. Promt or role missing."}
+    
+    session_id = uuid4()
 
-    result = await ors.call(promt, role)
+    result = await generate_story_task(session_id=session_id, prompt=promt, role=role, db=db)
 
-    return {"data": result}
-
-@start_story.get("/clear_history")
-def clear_history():
-    result = ors.clear_history()
-    return result
+    return {"data":result, "uuid":session_id}

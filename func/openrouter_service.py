@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import json
 import logging
 
+from utils.redis import redis_client
+
 load_dotenv()
 
 MODEL = os.getenv('MODEL')
@@ -16,19 +18,23 @@ class OpenRouterService:
         self.api_key = api_key
         self.model = model
         self.url = url
-        self.messages = []
 
-    async def call(self, prompt, role="user"):
-        # Добавляем новое сообщение пользователя
-        self.messages.append({"role": role, "content": prompt})
+    async def call(self, prompt, role="user", session_id=None):
+        message = []
 
+        if session_id:
+            cache = await redis_client.get(f"session:{session_id}")
+            messages = json.loads(cache) if cache else []
+
+        message.append({"role": role, "content": prompt})
+        
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
         payload = {
             "model": self.model,
-            "messages": self.messages
+            "messages": [{"role": role, "content": prompt}]
         }
         try:
             async with aiohttp.ClientSession() as session:
@@ -52,8 +58,12 @@ class OpenRouterService:
             except (KeyError, IndexError) as e:
                 logging.error(f"Неправильная структура ответа: {e}")
                 return {"Неправильная структура ответа": e, "Ответ": data}
+            
+            if session_id:
+                messages.append({"role": role, "content": json.dumps(assistant_reply)}) # type: ignore
+                await redis_client.set(f"session:{session_id}", json.dumps(messages), ex=3600) # type: ignore
+                await redis_client.close() # type: ignore
 
-            self.messages.append({"role": role, "content": assistant_reply})
             return assistant_reply
 
         except aiohttp.ClientError as e:
@@ -62,7 +72,3 @@ class OpenRouterService:
         except Exception as e:
             logging.error(f"Неизвестная ошибка: {e}")
             return f"Неизвестная ошибка: {e}"
-        
-    def clear_history(self):
-        self.messages = []
-        return {"data": "Success!"}
