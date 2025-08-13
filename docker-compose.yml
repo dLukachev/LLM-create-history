@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=sqlite:///./history.db
+      - OPENROUTER_KEY="ИЗМЕНИТЬ"
+      - MODEL="google/gemma-3-27b-it:free"
+      - URL_ROUTER = "https://openrouter.ai/api/v1/chat/completions"
+      - SECRET_KEY="ИЗМЕНИТЬ"
+      - ALGORITHM="HS256"
+    volumes:
+      - ./database.db:/app/database.db
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"

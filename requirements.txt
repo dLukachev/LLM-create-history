@@ -1,9 +1,9 @@
 fastapi
 sqlalchemy
 redis
-celery
 aiohttp
 uvicorn
 python-dotenv
 alembic
-pytjwt
+pyjwt
+arq
