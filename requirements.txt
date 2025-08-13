@@ -6,3 +6,4 @@ aiohttp
 uvicorn
 python-dotenv
 alembic
+pytjwt
