@@ -24,7 +24,7 @@ class OpenRouterService:
 
         if session_id:
             cache = await redis_client.get(f"session:{session_id}")
-            messages = json.loads(cache) if cache else []
+            messages = list(json.loads(cache)) if cache else []
 
         message.append({"role": role, "content": prompt})
         

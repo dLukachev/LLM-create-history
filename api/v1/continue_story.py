@@ -15,9 +15,6 @@ async def continue_story(request: StoryContinueRequest, db: Session = Depends(ge
     story = db.query(Story).filter(Story.session_id == request.session_id).first()
     if not story:
         raise HTTPException(404, "Story not found")
-    
-    cached = await redis_client.get(f"session:{request.session_id}")
-    cached_decode = json.loads(cached)
 
     result = await continue_story_task(session_id=request.session_id, prompt=request.promt, changes=request.changes, db=db)
 
